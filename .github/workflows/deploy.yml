@@ -32,7 +32,7 @@ jobs:
           script: |
             # Install Docker if not installed
             if ! command -v docker &> /dev/null; then
-              sudo amazon-linux-extras install docker -y
+              sudo snap install docker
               sudo systemctl start docker
               sudo systemctl enable docker
               sudo usermod -aG docker $USER
