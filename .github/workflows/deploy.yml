@@ -69,5 +69,6 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
             cd /home/${{ secrets.EC2_USER }}
+            sudo chmod 666 /var/run/docker.sock
             docker-compose pull
             docker-compose up -d
