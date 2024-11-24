@@ -15,7 +15,7 @@ services:
       - udemx-network
 
   app:
-    image: szekelybalint01/car-rent-app:tagname
+    image: szekelybalint01/car-rent-app:latest
     restart: always
     ports:
       - "8080:8080"
