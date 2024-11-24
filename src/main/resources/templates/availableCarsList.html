@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Date Range Results</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h2>Results for Dates</h2>
+    <p>Start Date: <span th:text="${startDate}"></span></p>
+    <p>End Date: <span th:text="${endDate}"></span></p>
+
+    <ul th:if="${not #lists.isEmpty(items)}">
+        <li th:each="item : ${items}" th:text="${item}"></li>
+    </ul>
+    <div th:if="${#lists.isEmpty(items)}" class="alert alert-warning">
+        No items found for the selected date range.
+    </div>
+</div>
+</body>
+</html>
