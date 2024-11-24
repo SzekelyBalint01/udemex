@@ -1,15 +1,18 @@
 CREATE TABLE cars (
                        id SERIAL PRIMARY KEY,
-                       neve VARCHAR(255) NOT NULL,
-                       foto BYTEA,
-                       aktiv BOOLEAN NOT NULL DEFAULT TRUE
+                       name VARCHAR(255) NOT NULL,
+                       photo BYTEA,
+                       active BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE reservations(
         id SERIAL PRIMARY KEY,
-        carId INTEGER,
-        startDate DATE,
-        endDate Date,
+        start_date DATE,
+        end_date Date,
+        car_id INTEGER,
+        user_id INTEGER,
+        FOREIGN KEY (car_id) REFERENCES cars (id),
+        FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
 CREATE TABLE users(
@@ -18,7 +21,6 @@ CREATE TABLE users(
     email VARCHAR(255),
     address VARCHAR(255),
     phone VARCHAR(17),
-    rentDays INTEGER,
-    price INTEGER,
-    carId INTEGER
+    rent_days INTEGER,
+    price INTEGER
 );

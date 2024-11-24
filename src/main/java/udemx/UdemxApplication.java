@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class UdemexApplication {
+public class UdemxApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(UdemexApplication.class, args);
+        SpringApplication.run(UdemxApplication.class, args);
     }
 
 }
