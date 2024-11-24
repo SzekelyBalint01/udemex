@@ -10,12 +10,12 @@ services:
       - "1235:5432"
     volumes:
       - udemx:/var/lib/postgresql/data
-      - ./schema-postgres.sql:/docker-entrypoint-initdb.d/schema-postgres.sql
+      - ./src/main/resources/schema-postgres.sql:/docker-entrypoint-initdb.d/schema-postgres.sql
     networks:
       - udemx-network
 
   app:
-    image: car-rent
+    image: szekelybalint01/car-rent-app:tagname
     restart: always
     ports:
       - "8080:8080"
