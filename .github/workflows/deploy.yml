@@ -14,6 +14,52 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Configure Amazon CloudWatch Agent
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: |
+            # Install CloudWatch Agent
+            curl -O https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
+            sudo dpkg -i -E ./amazon-cloudwatch-agent.deb
+
+            # Create CloudWatch Agent configuration
+            cat <<EOF | sudo tee /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+            {
+              "agent": {
+                      "run_as_user": "cwagent"
+              },
+              "logs": {
+                      "logs_collected": {
+                              "files": {
+                                      "collect_list": [
+                                              {
+                                                        "file_path": "",
+                                                        "log_group_class": "STANDARD",
+                                                        "log_group_name": "car-rent-app-log-group",
+                                                        "log_stream_name": "car-rent-app-logs",
+                                                        "retention_in_days": 7
+                                              }
+                                      ]
+                              }
+                      }
+              }
+            } 
+            EOF
+
+            # Start CloudWatch Agent
+            sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a start
+
+            # Enable CloudWatch Agent on system reboot
+            sudo systemctl enable amazon-cloudwatch-agent
+
+            sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a status
+
+            echo "CloudWatch Agent configured and started."    
+
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
@@ -72,3 +118,8 @@ jobs:
             sudo chmod 666 /var/run/docker.sock
             docker-compose pull
             docker-compose up -d
+            #curl -O https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
+            #sudo dpkg -i -E ./amazon-cloudwatch-agent.deb
+
+
+            
