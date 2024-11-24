@@ -10,7 +10,9 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ "master", "dev" ]
+    branches: 
+      - master
+      - dev
     
 jobs:
   build:
