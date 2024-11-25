@@ -35,22 +35,33 @@ jobs:
                       "logs_collected": {
                               "files": {
                                       "collect_list": [
-                                              {
-                                                        "file_path": "",
-                                                        "log_group_class": "STANDARD",
-                                                        "log_group_name": "car-rent-app-log-group",
-                                                        "log_stream_name": "car-rent-app-logs",
-                                                        "retention_in_days": 7
-                                              }
-                                      ]
+                                          {
+                                              "file_path": "/path/to/location-service/logs/location-service-logger.log",
+                                              "log_group_name": "SpringBoot_Microservices_Logs",
+                                              "log_stream_name": "location_service_stream",
+                                              "timestamp_format": "%Y-%m-%d %H:%M:%S"
+                                          },
+                                          {
+                                              "file_path": "/path/to/car-service/logs/car-service-logger.log",
+                                              "log_group_name": "SpringBoot_Microservices_Logs",
+                                              "log_stream_name": "car_service_stream",
+                                              "timestamp_format": "%Y-%m-%d %H:%M:%S"
+                                          },
+                                          {
+                                              "file_path": "/path/to/reservation-service/logs/reservation-service-logger.log",
+                                              "log_group_name": "SpringBoot_Microservices_Logs",
+                                              "log_stream_name": "reservation_service_stream",
+                                              "timestamp_format": "%Y-%m-%d %H:%M:%S"
+                                          }
+                                    ]
                               }
                       }
               }
             } 
             EOF
-
-            # Start CloudWatch Agent
-            sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a start
+            
+            
+            sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config --config-file /home/ec2-user/cloudwatch-config.json -s
 
             # Enable CloudWatch Agent on system reboot
             sudo systemctl enable amazon-cloudwatch-agent
