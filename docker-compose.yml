@@ -10,7 +10,7 @@ services:
       - "1235:5432"
     volumes:
       - udemx:/var/lib/postgresql/data
-      - ./src/main/resources/init-schema.sql:/docker-entrypoint-initdb.d/init-schema.sql
+      - ./init.sql:/docker-entrypoint-initdb.d/init-schema.sql
     networks:
       - udemx-network
 
