@@ -5,14 +5,13 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.util.List;
-
 @Entity
-@Table(name = "cars")
+@Table(name = "users")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
+@Builder
 public class User implements Serializable {
 
     @Id
@@ -31,12 +30,7 @@ public class User implements Serializable {
     @Column(name = "phone", length = 17)
     private String phone;
 
-    @Column(name = "rent_days")
-    private Integer rentDays;
 
-    @Column(name = "price")
-    private Integer price;
-
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Reservation> reservations;
 }

@@ -12,7 +12,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
+@Builder
 public class Car implements Serializable {
 
     @Id
@@ -22,14 +22,17 @@ public class Car implements Serializable {
     @Column(name = "name", length = 255, nullable = false)
     private String name;
 
+    @Column(name = "price")
+    private int price;
+
     @Lob
     @Column(name = "photo")
     private byte[] photo;
 
-    @Column(name = "active",nullable = false)
+    @Column(name = "active", nullable = false)
     private Boolean active = true;
 
-    @OneToMany(mappedBy = "car")
+    // Egy autóhoz több foglalás tartozhat
+    @OneToMany(mappedBy = "car", fetch = FetchType.LAZY)
     private List<Reservation> reservations;
-
 }

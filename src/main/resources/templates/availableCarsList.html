@@ -11,12 +11,30 @@
     <p>Start Date: <span th:text="${startDate}"></span></p>
     <p>End Date: <span th:text="${endDate}"></span></p>
 
-    <ul th:if="${not #lists.isEmpty(items)}">
-        <li th:each="item : ${items}" th:text="${item}"></li>
-    </ul>
-    <div th:if="${#lists.isEmpty(items)}" class="alert alert-warning">
-        No items found for the selected date range.
-    </div>
+    <table class="table table-bordered" th:if="${not #lists.isEmpty(cars)}">
+        <thead>
+        <tr>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="car : ${cars}">
+            <td th:text="${car.name}"></td>
+            <td th:text="${car.photo}"></td>
+            <td th:text="${car.price}"></td>
+            <td>
+                <form th:action="@{/submitCar}" method="post">
+                    <input type="hidden" name="carId" th:value="${car.id}" />
+                    <input type="hidden" name="startDate" th:value="${startDate}" />
+                    <input type="hidden" name="endDate" th:value="${endDate}" />
+                    <input type="hidden" name="price" th:value="${car.price}" />
+                    <button type="submit" class="btn btn-primary">Rent</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div th:if="${#lists.isEmpty(cars)}" class="alert alert-warning" th:text="${error}"></div>
 </div>
 </body>
 </html>
