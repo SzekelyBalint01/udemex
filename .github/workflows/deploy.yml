@@ -61,6 +61,48 @@ jobs:
             sudo chown cloudwatch-agent-user:cloudwatch-agent-user /var/log/car-rent-app
             sudo chmod -R 755 /var/log/car-rent-app
             
+            CONFIG_PATH="/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.toml"
+            
+            sudo mkdir -p /opt/aws/amazon-cloudwatch-agent/etc/
+            
+            cat <<EOF | sudo tee $CONFIG_PATH
+            [agent]
+            collection_jitter = "0s"
+            debug = false
+            flush_interval = "1s"
+            flush_jitter = "0s"
+            hostname = ""
+            interval = "60s"
+            logfile = "/opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent.log"
+            logtarget = "lumberjack"
+            metric_batch_size = 1000
+            metric_buffer_limit = 10000
+            omit_hostname = false
+            precision = ""
+            quiet = false
+            round_interval = false
+            
+            [logs]
+            logs_collected = { files = { collect_list = [
+            {
+            file_path = "/var/log/car-rent-app/application.log",
+            log_group_name = "car-rent-app",
+            log_stream_name = "{instance_id}",
+            timestamp_format = "%Y-%m-%d %H:%M:%S"
+            }
+            ]}}
+            EOF
+            
+            sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config \
+            -m ec2 -c file:$CONFIG_PATH -s
+            
+            # Szolgáltatás újraindítása
+            echo "CloudWatch Agent újraindítása..."
+            sudo systemctl restart amazon-cloudwatch-agent
+            
+            # Státusz ellenőrzése
+            echo "CloudWatch Agent státusz ellenőrzése..."
+            sudo systemctl status amazon-cloudwatch-agent
             echo "CloudWatch Agent configured and started."    
         
 
