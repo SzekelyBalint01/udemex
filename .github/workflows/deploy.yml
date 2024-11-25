@@ -158,8 +158,8 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
-          source: ./init-schema.sql
-          target: /home/${{ secrets.EC2_USER }}/init-schema.sql
+          source: ./init.sql
+          target: /home/${{ secrets.EC2_USER }}/init.sql
 
       - name: Deploy with Docker Compose on EC2
         uses: appleboy/ssh-action@master
