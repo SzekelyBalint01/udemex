@@ -39,8 +39,7 @@ jobs:
                                               "file_path": "/var/log/car-rent-app/car-rent-app-logs.log",
                                               "log_group_name": "car-rent-app-logs",
                                               "log_stream_name": "{instance_id}",
-                                              "timezone": "UTC",
-                                              "timestamp_format": "%Y-%m-%d %H:%M:%S"
+                                              "timezone": "UTC"
                                           }
                                     ]
                               }
@@ -51,13 +50,13 @@ jobs:
             EOF
             
             
-            sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config --config-file /home/ec2-user/cloudwatch-config.json -s
+            sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:-c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json -s
 
             # Enable CloudWatch Agent on system reboot
             sudo systemctl enable amazon-cloudwatch-agent
 
             sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a status
-
+            sudo useradd -r -s /sbin/nologin cloudwatch-agent-user
             sudo chown cloudwatch-agent-user:cloudwatch-agent-user /var/log/car-rent-app
             sudo chmod -R 755 /var/log/car-rent-app
             
