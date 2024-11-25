@@ -36,26 +36,16 @@ jobs:
                               "files": {
                                       "collect_list": [
                                           {
-                                              "file_path": "/path/to/location-service/logs/location-service-logger.log",
-                                              "log_group_name": "SpringBoot_Microservices_Logs",
-                                              "log_stream_name": "location_service_stream",
-                                              "timestamp_format": "%Y-%m-%d %H:%M:%S"
-                                          },
-                                          {
-                                              "file_path": "/path/to/car-service/logs/car-service-logger.log",
-                                              "log_group_name": "SpringBoot_Microservices_Logs",
-                                              "log_stream_name": "car_service_stream",
-                                              "timestamp_format": "%Y-%m-%d %H:%M:%S"
-                                          },
-                                          {
-                                              "file_path": "/path/to/reservation-service/logs/reservation-service-logger.log",
-                                              "log_group_name": "SpringBoot_Microservices_Logs",
-                                              "log_stream_name": "reservation_service_stream",
+                                              "file_path": "/var/log/car-rent-app/car-rent-app-logs.log",
+                                              "log_group_name": "car-rent-app-logs",
+                                              "log_stream_name": "{instance_id}",
+                                              "timezone": "UTC",
                                               "timestamp_format": "%Y-%m-%d %H:%M:%S"
                                           }
                                     ]
                               }
-                      }
+                      },
+                  "log_stream_name": "ec2-instance-log"
               }
             } 
             EOF
@@ -68,8 +58,11 @@ jobs:
 
             sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a status
 
+            sudo chown cloudwatch-agent-user:cloudwatch-agent-user /var/log/car-rent-app
+            sudo chmod -R 755 /var/log/car-rent-app
+            
             echo "CloudWatch Agent configured and started."    
-
+        
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1

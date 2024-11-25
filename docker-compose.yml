@@ -16,7 +16,9 @@ services:
 
   app:
     image: szekelybalint01/car-rent-app:latest
-    restart: always
+    container_name: car-rent-app
+    volumes:
+      - /var/log/car-rent-app:/var/log/car-rent-app
     ports:
       - "8080:8080"
     depends_on:
