@@ -160,6 +160,7 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
             cd /home/${{ secrets.EC2_USER }}
+            scp ./src/main/resources/schema-postgres.sql /home/${{ secrets.EC2_USER }}/src/main/resources/schema-postgres.sql
             sudo chmod 666 /var/run/docker.sock
             docker stop $(docker ps -aq) && docker rm $(docker ps -aq)
             docker rmi $(docker images -aq)
