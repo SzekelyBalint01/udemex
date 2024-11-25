@@ -5,14 +5,13 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.sql.Date;
-
 @Entity
 @Table(name = "reservations")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
+@Builder
 public class Reservation implements Serializable {
 
     @Id
@@ -25,11 +24,21 @@ public class Reservation implements Serializable {
     @Column(name = "end_date")
     private Date endDate;
 
+    @Column(name = "rent_days")
+    private Long rentDays;
+
+
+    @Column(name = "price")
+    private Integer price;
+
+    // Egy foglalás egy autóhoz tartozik
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "car_id", nullable = false)
     private Car car;
 
+    // Egy foglalás egy felhasználóhoz tartozik
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 }
+

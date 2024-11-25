@@ -1,0 +1,48 @@
+package udemx.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import udemx.exception.CarServiceException;
+import udemx.pojo.RentCalculationResponse;
+import udemx.pojo.RentResponse;
+import udemx.service.RentCalculatorService;
+import udemx.service.RentService;
+import udemx.service.ReservationService;
+
+@Controller
+public class RentController {
+
+    private final RentCalculatorService rentCalculatorService;
+    private final RentService rentService;
+
+    public RentController(RentCalculatorService rentCalculatorService, RentService rentService, ReservationService reservationService) {
+        this.rentCalculatorService = rentCalculatorService;
+        this.rentService = rentService;
+    }
+
+    @PostMapping("/submitCar")
+    public String submitItem(@RequestParam Long carId, @RequestParam String startDate, @RequestParam String endDate, @RequestParam long price , Model model) {
+
+        RentCalculationResponse rentCalculationResponse = rentCalculatorService.rentCalculation(startDate, endDate, price);
+
+        model.addAttribute("numberOfRentDays", rentCalculationResponse.getTotalRentDays());
+        model.addAttribute("price", rentCalculationResponse.getTotalPrice());
+        model.addAttribute("carId", carId);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+
+        return "rentForm";
+    }
+
+    @PostMapping("/finishRent")
+    public String submitForm(@RequestParam String name, @RequestParam String email, @RequestParam String address,
+                                   @RequestParam String startDate, @RequestParam String endDate, @RequestParam Long carId,
+                                   @RequestParam String phone, @RequestParam Integer price, Long rentDays, Model model) throws CarServiceException {
+
+       model.addAttribute("rentResponse", rentService.saveRent(name, email, address, carId, startDate,endDate, phone, price, rentDays));
+
+        return "success";
+    }
+}
