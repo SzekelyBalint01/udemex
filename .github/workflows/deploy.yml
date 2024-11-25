@@ -152,6 +152,15 @@ jobs:
           source: "docker-compose.yml"
           target: "/home/${{ secrets.EC2_USER }}/"
 
+      - name: Upload SQL file to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          source: ./src/main/resources/schema-postgres.sql
+          target: /home/${{ secrets.EC2_USER }}/schema-postgres.sql
+
       - name: Deploy with Docker Compose on EC2
         uses: appleboy/ssh-action@master
         with:
@@ -160,7 +169,6 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
             cd /home/${{ secrets.EC2_USER }}
-            scp ./src/main/resources/schema-postgres.sql /home/${{ secrets.EC2_USER }}/src/main/resources/schema-postgres.sql
             sudo chmod 666 /var/run/docker.sock
             docker stop $(docker ps -aq) && docker rm $(docker ps -aq)
             docker rmi $(docker images -aq)
