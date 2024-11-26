@@ -7,7 +7,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import udemx.exception.CarSearchServiceException;
+import udemx.pojo.CarDto;
 import udemx.service.CarSearchService;
+
+import java.util.List;
 
 @Controller
 public class CarController {
@@ -23,12 +26,22 @@ public class CarController {
     @PostMapping("/search")
     public String handleDates(@RequestParam("startDate") String startDate, @RequestParam("endDate") String endDate, Model model) {
         try {
-            model.addAttribute("cars", carSearchService.availableCars(startDate, endDate));
-        } catch (CarSearchServiceException e) {
-            model.addAttribute("error", e.getMessage());
-            logger.warn("Something went wrong while searching for cars :{}", e.getMessage());
+            List<CarDto> cars = carSearchService.availableCars(startDate, endDate);
+
+            if (cars.isEmpty()) {
+                model.addAttribute("error", "No available cars found");
+                return "availableCarsList";
+            }
+
+            model.addAttribute("cars", cars);
+
+        } catch (Exception e) {
+            String errorMessage = (e instanceof CarSearchServiceException) ? e.getMessage() : "An unexpected error occurred";
+            model.addAttribute("error", errorMessage);
+            logger.error("Error during car availability search", e);
             return "availableCarsList";
         }
+
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
 
@@ -36,5 +49,4 @@ public class CarController {
 
         return "availableCarsList";
     }
-
 }

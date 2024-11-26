@@ -20,7 +20,7 @@ public class CarSearchService {
 
     public List<CarDto> availableCars (String startDate, String endDate) throws CarSearchServiceException {
         return carMapper(carRepository.availableBetweenDate(Date.valueOf(startDate), Date.valueOf(endDate))
-                .orElseThrow(() -> new CarSearchServiceException("No available cars found")));
+                .orElseThrow(() -> new CarSearchServiceException("Something went wrong while searching for cars")));
     }
 
     public List<CarDto> carMapper (List<Car> cars){
