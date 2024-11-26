@@ -1,22 +1,27 @@
 package udemx.controller;
 
 import org.junit.Test;
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.mockito.Mockito.*;
-
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.ui.Model;
-import java.sql.Date;
-import java.time.format.DateTimeParseException;
-import static org.junit.Assert.*;
 import udemx.exception.CarServiceException;
 import udemx.pojo.RentCalculationResponse;
 import udemx.pojo.RentResponse;
 import udemx.service.RentCalculatorService;
 import udemx.service.RentService;
 
-@SpringBootTest
+import java.sql.Date;
+import java.time.format.DateTimeParseException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.Mockito.*;
+
+@SpringBootTest(
+        classes = {
+                RentCalculationResponse.class,
+        }
+)
 public class RentControllerTest {
 
     private final RentCalculatorService rentCalculatorService = mock(RentCalculatorService.class);
@@ -24,7 +29,82 @@ public class RentControllerTest {
     private final Model model = mock(Model.class);
     private final RentController rentController = new RentController(rentCalculatorService, rentService);
 
-     @Test
+
+    @Test
+    public void test_valid_dates_and_price_calculation() {
+        Model model = mock(Model.class);
+
+        when(rentCalculatorService.rentCalculation("2023-01-01", "2023-01-03", 100L))
+                .thenReturn(RentCalculationResponse.builder()
+                        .totalRentDays(3L)
+                        .totalPrice(300L)
+                        .build());
+
+        rentController.submitItem(1L, "2023-01-01", "2023-01-03", 100L, model);
+
+        verify(model).addAttribute("numberOfRentDays", 3L);
+        verify(model).addAttribute("price", 300L);
+    }
+
+    @Test
+    public void test_integration_with_calculator_service() {
+        Model model = mock(Model.class);
+
+        rentController.submitItem(1L, "2023-01-01", "2023-01-02", 100L, model);
+
+        verify(rentCalculatorService).rentCalculation("2023-01-01", "2023-01-02", 100L);
+    }
+
+    @Test
+    public void test_extremely_large_price() {
+        Model model = mock(Model.class);
+        long largePrice = Long.MAX_VALUE;
+
+        when(rentCalculatorService.rentCalculation(anyString(), anyString(), eq(largePrice)))
+                .thenReturn(RentCalculationResponse.builder()
+                        .totalRentDays(1L)
+                        .totalPrice(largePrice)
+                        .build());
+
+        rentController.submitItem(1L, "2023-01-01", "2023-01-01", largePrice, model);
+
+        verify(model).addAttribute("price", largePrice);
+    }
+
+    @Test
+    public void test_null_parameters() {
+        Model model = mock(Model.class);
+
+        assertThrows(NullPointerException.class, () ->
+                rentController.submitItem(null, null, null, 100L, model));
+    }
+
+    @Test
+    public void test_model_attributes_match_inputs() {
+        Model model = mock(Model.class);
+
+        String startDate = "2023-12-01";
+        String endDate = "2023-12-05";
+        Long carId = 555L;
+        long price = 150L;
+
+        when(rentCalculatorService.rentCalculation(startDate, endDate, price))
+                .thenReturn(RentCalculationResponse.builder()
+                        .totalRentDays(5L)
+                        .totalPrice(750L)
+                        .build());
+
+        rentController.submitItem(carId, startDate, endDate, price, model);
+
+        verify(model).addAttribute("carId", carId);
+        verify(model).addAttribute("startDate", startDate);
+        verify(model).addAttribute("endDate", endDate);
+        verify(model, times(1)).addAttribute(eq("startDate"), eq(startDate));
+        verify(model, times(1)).addAttribute(eq("endDate"), eq(endDate));
+    }
+
+
+    @Test
     public void test_rental_calculation_success() {
         String startDate = "2024-01-01";
         String endDate = "2024-01-03";
@@ -50,7 +130,7 @@ public class RentControllerTest {
         String name = "John Doe";
         String email = "john@test.com";
         String address = "Test Address";
-        Long carId = 1L;
+        long carId = 1L;
         String startDate = "2024-01-01";
         String endDate = "2024-01-03";
         String phone = "1234567890";
@@ -74,34 +154,11 @@ public class RentControllerTest {
     }
 
     @Test
-    public void test_model_attributes_set_correctly() {
-        String startDate = "2024-01-01";
-        String endDate = "2024-01-03";
-        long price = 100;
-        Long carId = 1L;
-
-        RentCalculationResponse calculationResponse = RentCalculationResponse.builder()
-                .totalRentDays(3)
-                .totalPrice(300)
-                .build();
-
-        when(rentCalculatorService.rentCalculation(startDate, endDate, price)).thenReturn(calculationResponse);
-
-        rentController.submitItem(carId, startDate, endDate, price, model);
-
-        verify(model).addAttribute("numberOfRentDays", 3L);
-        verify(model).addAttribute("price", 300L);
-        verify(model).addAttribute("carId", carId);
-        verify(model).addAttribute("startDate", startDate);
-        verify(model).addAttribute("endDate", endDate);
-    }
-
-    @Test
     public void test_valid_car_id_lookup() throws CarServiceException {
         String name = "John";
         String email = "john@test.com";
         String address = "Test";
-        Long carId = 1L;
+        long carId = 1L;
         String startDate = "2024-01-01";
         String endDate = "2024-01-03";
         String phone = "1234567890";
@@ -133,60 +190,30 @@ public class RentControllerTest {
         verify(model).addAttribute("numberOfRentDays", 1L);
     }
 
-     @Test
-    public void test_invalid_date_format() {
-        String startDate = "01-01-2024";
-        String endDate = "2024-01-03";
-        long price = 100;
-        Long carId = 1L;
-
-        when(rentCalculatorService.rentCalculation(startDate, endDate, price))
-                .thenThrow(new DateTimeParseException("Invalid date format", startDate, 0));
-
-        assertThrows(DateTimeParseException.class,
-                () -> rentController.submitItem(carId, startDate, endDate, price, model));
-    }
-
-    @Test
-    public void test_end_date_before_start_date() {
-        String startDate = "2024-01-03";
-        String endDate = "2024-01-01";
-        long price = 100;
-        Long carId = 1L;
-
-        when(rentCalculatorService.rentCalculation(startDate, endDate, price))
-                .thenThrow(new IllegalArgumentException("End date cannot be before start date"));
-
-        assertThrows(IllegalArgumentException.class,
-                () -> rentController.submitItem(carId, startDate, endDate, price, model));
-    }
-
     @Test
     public void test_null_parameters_form_submission() throws CarServiceException {
-        String name = null;
         String email = "test@test.com";
         String address = "Test";
-        Long carId = 1L;
+        long carId = 1L;
         String startDate = "2024-01-01";
         String endDate = "2024-01-03";
         String phone = "1234567890";
         Integer price = 300;
         Long rentDays = 3L;
 
-        when(rentService.saveRent(name, email, address, carId, startDate, endDate, phone, price, rentDays))
+        when(rentService.saveRent(null, email, address, carId, startDate, endDate, phone, price, rentDays))
                 .thenThrow(new IllegalArgumentException("Name cannot be null"));
 
         assertThrows(IllegalArgumentException.class,
-                () -> rentController.submitForm(name, email, address, startDate, endDate, carId, phone, price, rentDays, model));
+                () -> rentController.submitForm(null, email, address, startDate, endDate, carId, phone, price, rentDays, model));
     }
 
-    // Handle invalid car ID that doesn't exist
     @Test
     public void test_invalid_car_id() throws CarServiceException {
         String name = "John";
         String email = "john@test.com";
         String address = "Test";
-        Long carId = 999L;
+        long carId = 999L;
         String startDate = "2024-01-01";
         String endDate = "2024-01-03";
         String phone = "1234567890";
@@ -200,7 +227,6 @@ public class RentControllerTest {
                 () -> rentController.submitForm(name, email, address, startDate, endDate, carId, phone, price, rentDays, model));
     }
 
-    // Handle very large price values or rental day calculations
     @Test
     public void test_large_price_values() {
         String startDate = "2024-01-01";
@@ -220,13 +246,12 @@ public class RentControllerTest {
         assertEquals("rentForm", viewName);
     }
 
-    // Handle special characters in user input fields
     @Test
     public void test_special_characters_in_input() throws CarServiceException {
         String name = "John<script>";
         String email = "john@test.com";
         String address = "Test Address & More";
-        Long carId = 1L;
+        long carId = 1L;
         String startDate = "2024-01-01";
         String endDate = "2024-01-03";
         String phone = "123-456-7890";
@@ -240,13 +265,12 @@ public class RentControllerTest {
                 () -> rentController.submitForm(name, email, address, startDate, endDate, carId, phone, price, rentDays, model));
     }
 
-    // Verify transaction rollback on partial rental save failure
     @Test
     public void test_transaction_rollback() throws CarServiceException {
         String name = "John";
         String email = "john@test.com";
         String address = "Test";
-        Long carId = 1L;
+        long carId = 1L;
         String startDate = "2024-01-01";
         String endDate = "2024-01-03";
         String phone = "1234567890";
@@ -259,4 +283,159 @@ public class RentControllerTest {
         assertThrows(RuntimeException.class,
                 () -> rentController.submitForm(name, email, address, startDate, endDate, carId, phone, price, rentDays, model));
     }
+
+    @Test
+    public void test_model_attributes_set_correctly() {
+        Model model = mock(Model.class);
+
+        RentCalculationResponse response = RentCalculationResponse.builder()
+                .totalRentDays(3L)
+                .totalPrice(300L)
+                .build();
+
+        when(rentCalculatorService.rentCalculation(any(), any(), anyLong()))
+                .thenReturn(response);
+
+        rentController.submitItem(1L, "2023-01-01", "2023-01-03", 100L, model);
+
+        verify(model).addAttribute("numberOfRentDays", 3L);
+        verify(model).addAttribute("price", 300L);
+        verify(model).addAttribute("carId", 1L);
+        verify(model).addAttribute("startDate", "2023-01-01");
+        verify(model).addAttribute("endDate", "2023-01-03");
+    }
+
+    @Test
+    public void test_returns_correct_view_name() {
+
+        Model model = mock(Model.class);
+
+        when(rentCalculatorService.rentCalculation(any(), any(), anyLong()))
+                .thenReturn(RentCalculationResponse.builder().build());
+
+        String viewName = rentController.submitItem(1L, "2023-01-01", "2023-01-02", 100L, model);
+
+        assertEquals("rentForm", viewName);
+    }
+
+    @Test
+    public void test_integration_with_rent_calculator_service() {
+        Model model = mock(Model.class);
+
+        rentController.submitItem(1L, "2023-01-01", "2023-01-02", 100L, model);
+
+        verify(rentCalculatorService).rentCalculation("2023-01-01", "2023-01-02", 100L);
+    }
+
+    @Test
+    public void test_valid_car_id_processing() {
+
+        Model model = mock(Model.class);
+        Long carId = 12345L;
+
+        when(rentCalculatorService.rentCalculation(any(), any(), anyLong()))
+                .thenReturn(RentCalculationResponse.builder().build());
+
+        rentController.submitItem(carId, "2023-01-01", "2023-01-02", 100L, model);
+
+        verify(model).addAttribute("carId", carId);
+    }
+
+    @Test
+    public void test_invalid_date_format() {
+
+        Model model = mock(Model.class);
+
+        when(rentCalculatorService.rentCalculation("invalid-date", "2023-01-02", 100L))
+                .thenThrow(new DateTimeParseException("Invalid date format", "invalid-date", 0));
+
+        assertThrows(DateTimeParseException.class, () ->
+                rentController.submitItem(1L, "invalid-date", "2023-01-02", 100L, model));
+    }
+
+    @Test
+    public void test_negative_price_values() {
+
+        Model model = mock(Model.class);
+
+        when(rentCalculatorService.rentCalculation(any(), any(), eq(-100L)))
+                .thenThrow(new IllegalArgumentException("Price cannot be negative"));
+
+        assertThrows(IllegalArgumentException.class, () ->
+                rentController.submitItem(1L, "2023-01-01", "2023-01-02", -100L, model));
+    }
+
+    @Test
+    public void test_end_date_before_start_date() {
+        Model model = mock(Model.class);
+
+        when(rentCalculatorService.rentCalculation("2023-01-02", "2023-01-01", 100L))
+                .thenThrow(new IllegalArgumentException("End date cannot be before start date"));
+
+        assertThrows(IllegalArgumentException.class, () ->
+                rentController.submitItem(1L, "2023-01-02", "2023-01-01", 100L, model));
+    }
+
+    @Test
+    public void test_extremely_large_price_values() {
+
+        Model model = mock(Model.class);
+        long largePrice = Long.MAX_VALUE;
+
+        RentCalculationResponse response = RentCalculationResponse.builder()
+                .totalRentDays(1L)
+                .totalPrice(largePrice)
+                .build();
+
+        when(rentCalculatorService.rentCalculation(any(), any(), eq(largePrice)))
+                .thenReturn(response);
+
+        String result = rentController.submitItem(1L, "2023-01-01", "2023-01-01", largePrice, model);
+        verify(model).addAttribute("price", largePrice);
+        assertEquals("rentForm", result);
+    }
+
+    @Test
+    public void test_null_request_parameters() {
+        Model model = mock(Model.class);
+
+        assertThrows(NullPointerException.class, () ->
+                rentController.submitItem(null, null, null, 100L, model));
+    }
+
+    @Test
+    public void test_empty_string_dates() {
+        Model model = mock(Model.class);
+
+        when(rentCalculatorService.rentCalculation("", "", 100L))
+                .thenThrow(new DateTimeParseException("Empty date string", "", 0));
+
+        assertThrows(DateTimeParseException.class, () ->
+                rentController.submitItem(1L, "", "", 100L, model));
+    }
+
+    @Test
+    public void test_model_attributes_match_input_parameters() {
+        Model model = mock(Model.class);
+
+        String startDate = "2023-01-01";
+        String endDate = "2023-01-03";
+        Long carId = 999L;
+
+        RentCalculationResponse response = RentCalculationResponse.builder()
+                .totalRentDays(3L)
+                .totalPrice(300L)
+                .build();
+
+        when(rentCalculatorService.rentCalculation(startDate, endDate, 100L))
+                .thenReturn(response);
+
+        rentController.submitItem(carId, startDate, endDate, 100L, model);
+
+        verify(model).addAttribute(eq("startDate"), eq(startDate));
+        verify(model).addAttribute(eq("endDate"), eq(endDate));
+        verify(model).addAttribute(eq("carId"), eq(carId));
+    }
+
+
 }
