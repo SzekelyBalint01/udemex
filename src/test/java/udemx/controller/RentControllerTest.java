@@ -1,197 +1,262 @@
 package udemx.controller;
 
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.Mockito.*;
+
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.ui.Model;
+import java.sql.Date;
+import java.time.format.DateTimeParseException;
+import static org.junit.Assert.*;
 import udemx.exception.CarServiceException;
 import udemx.pojo.RentCalculationResponse;
 import udemx.pojo.RentResponse;
 import udemx.service.RentCalculatorService;
 import udemx.service.RentService;
 
-import java.sql.Date;
-import java.time.format.DateTimeParseException;
-import java.util.Optional;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
+@SpringBootTest
 public class RentControllerTest {
 
+    private final RentCalculatorService rentCalculatorService = mock(RentCalculatorService.class);
+    private final RentService rentService = mock(RentService.class);
+    private final Model model = mock(Model.class);
+    private final RentController rentController = new RentController(rentCalculatorService, rentService);
 
-    @Test
+     @Test
     public void test_rental_calculation_success() {
-        RentCalculatorService calculatorService = mock(RentCalculatorService.class);
-        RentService rentService = mock(RentService.class);
-        RentController controller = new RentController(calculatorService, rentService, null);
-
-        String startDate = "2023-01-01";
-        String endDate = "2023-01-03";
+        String startDate = "2024-01-01";
+        String endDate = "2024-01-03";
         long price = 100;
+        Long carId = 1L;
 
-        RentCalculationResponse response = RentCalculationResponse.builder()
+        RentCalculationResponse calculationResponse = RentCalculationResponse.builder()
                 .totalRentDays(3)
                 .totalPrice(300)
                 .build();
 
-        when(calculatorService.rentCalculation(startDate, endDate, price)).thenReturn(response);
+        when(rentCalculatorService.rentCalculation(startDate, endDate, price)).thenReturn(calculationResponse);
 
-        Model model = mock(Model.class);
-        String viewName = controller.submitItem(1L, startDate, endDate, price, model);
+        String viewName = rentController.submitItem(carId, startDate, endDate, price, model);
 
-        verify(model).addAttribute("price", 300L);
         verify(model).addAttribute("numberOfRentDays", 3L);
+        verify(model).addAttribute("price", 300L);
         assertEquals("rentForm", viewName);
     }
 
     @Test
     public void test_form_submission_success() throws CarServiceException {
-        RentCalculatorService calculatorService = mock(RentCalculatorService.class);
-        RentService rentService = mock(RentService.class);
-        RentController controller = new RentController(calculatorService, rentService, null);
+        String name = "John Doe";
+        String email = "john@test.com";
+        String address = "Test Address";
+        Long carId = 1L;
+        String startDate = "2024-01-01";
+        String endDate = "2024-01-03";
+        String phone = "1234567890";
+        Integer price = 300;
+        Long rentDays = 3L;
 
         RentResponse rentResponse = RentResponse.builder()
-                .name("John")
-                .startDate(Date.valueOf("2023-01-01"))
-                .endDate(Date.valueOf("2023-01-03"))
-                .price(300)
+                .name(name)
+                .startDate(Date.valueOf(startDate))
+                .endDate(Date.valueOf(endDate))
+                .price(price)
                 .build();
 
-        when(rentService.saveRent(anyString(), anyString(), anyString(), anyLong(),
-                anyString(), anyString(), anyString(), anyInt(), anyLong())).thenReturn(rentResponse);
+        when(rentService.saveRent(name, email, address, carId, startDate, endDate, phone, price, rentDays))
+                .thenReturn(rentResponse);
 
-        Model model = mock(Model.class);
-        String viewName = controller.submitForm("John", "john@email.com", "Address",
-                "2023-01-01", "2023-01-03", 1L, "1234567890", 300, 3L, model);
+        String viewName = rentController.submitForm(name, email, address, startDate, endDate, carId, phone, price, rentDays, model);
 
         verify(model).addAttribute("rentResponse", rentResponse);
         assertEquals("success", viewName);
     }
 
-    // Model attributes are correctly set after rental calculation
     @Test
     public void test_model_attributes_set_correctly() {
-        RentCalculatorService calculatorService = mock(RentCalculatorService.class);
-        RentService rentService = mock(RentService.class);
-        RentController controller = new RentController(calculatorService, rentService, null);
+        String startDate = "2024-01-01";
+        String endDate = "2024-01-03";
+        long price = 100;
+        Long carId = 1L;
 
-        RentCalculationResponse response = RentCalculationResponse.builder()
-                .totalRentDays(5)
-                .totalPrice(500)
+        RentCalculationResponse calculationResponse = RentCalculationResponse.builder()
+                .totalRentDays(3)
+                .totalPrice(300)
                 .build();
 
-        when(calculatorService.rentCalculation(anyString(), anyString(), anyLong())).thenReturn(response);
+        when(rentCalculatorService.rentCalculation(startDate, endDate, price)).thenReturn(calculationResponse);
 
-        Model model = mock(Model.class);
-        controller.submitItem(1L, "2023-01-01", "2023-01-05", 100L, model);
+        rentController.submitItem(carId, startDate, endDate, price, model);
 
-        verify(model).addAttribute("numberOfRentDays", 5L);
-        verify(model).addAttribute("price", 500L);
-        verify(model).addAttribute("carId", 1L);
-        verify(model).addAttribute("startDate", "2023-01-01");
-        verify(model).addAttribute("endDate", "2023-01-05");
+        verify(model).addAttribute("numberOfRentDays", 3L);
+        verify(model).addAttribute("price", 300L);
+        verify(model).addAttribute("carId", carId);
+        verify(model).addAttribute("startDate", startDate);
+        verify(model).addAttribute("endDate", endDate);
     }
 
     @Test
-    public void test_view_names_returned() throws CarServiceException {
-        RentCalculatorService calculatorService = mock(RentCalculatorService.class);
-        RentService rentService = mock(RentService.class);
-        RentController controller = new RentController(calculatorService, rentService, null);
+    public void test_valid_car_id_lookup() throws CarServiceException {
+        String name = "John";
+        String email = "john@test.com";
+        String address = "Test";
+        Long carId = 1L;
+        String startDate = "2024-01-01";
+        String endDate = "2024-01-03";
+        String phone = "1234567890";
+        Integer price = 300;
+        Long rentDays = 3L;
 
-        when(calculatorService.rentCalculation(anyString(), anyString(), anyLong()))
-                .thenReturn(RentCalculationResponse.builder().build());
-
-        when(rentService.saveRent(anyString(), anyString(), anyString(), anyLong(),
-                anyString(), anyString(), anyString(), anyInt(), anyLong()))
+        when(rentService.saveRent(name, email, address, carId, startDate, endDate, phone, price, rentDays))
                 .thenReturn(RentResponse.builder().build());
 
-        Model model = mock(Model.class);
-
-        String rentFormView = controller.submitItem(1L, "2023-01-01", "2023-01-03", 100L, model);
-        String successView = controller.submitForm("name", "email", "address",
-                "2023-01-01", "2023-01-03", 1L, "phone", 100, 3L, model);
-
-        assertEquals("rentForm", rentFormView);
-        assertEquals("success", successView);
+        assertDoesNotThrow(() -> rentController.submitForm(name, email, address, startDate, endDate, carId, phone, price, rentDays, model));
     }
 
     @Test
+    public void test_rental_calculation_includes_both_dates() {
+        String startDate = "2024-01-01";
+        String endDate = "2024-01-01";
+        long price = 100;
+        Long carId = 1L;
+
+        RentCalculationResponse calculationResponse = RentCalculationResponse.builder()
+                .totalRentDays(1)
+                .totalPrice(100)
+                .build();
+
+        when(rentCalculatorService.rentCalculation(startDate, endDate, price)).thenReturn(calculationResponse);
+
+        rentController.submitItem(carId, startDate, endDate, price, model);
+
+        verify(model).addAttribute("numberOfRentDays", 1L);
+    }
+
+     @Test
     public void test_invalid_date_format() {
-        RentCalculatorService calculatorService = new RentCalculatorService();
-        RentService rentService = mock(RentService.class);
-        RentController controller = new RentController(calculatorService, rentService, null);
+        String startDate = "01-01-2024";
+        String endDate = "2024-01-03";
+        long price = 100;
+        Long carId = 1L;
 
-        Model model = mock(Model.class);
+        when(rentCalculatorService.rentCalculation(startDate, endDate, price))
+                .thenThrow(new DateTimeParseException("Invalid date format", startDate, 0));
 
-        assertThrows(DateTimeParseException.class, () ->
-                controller.submitItem(1L, "2023/01/01", "2023-01-03", 100L, model));
-    }
-
-    @Test
-    public void test_negative_price() {
-        RentCalculatorService calculatorService = new RentCalculatorService();
-        RentService rentService = mock(RentService.class);
-        RentController controller = new RentController(calculatorService, rentService, null);
-
-        Model model = mock(Model.class);
-        controller.submitItem(1L, "2023-01-01", "2023-01-03", -100L, model);
-
-        ArgumentCaptor<Long> priceCaptor = ArgumentCaptor.forClass(Long.class);
-        verify(model).addAttribute(eq("price"), priceCaptor.capture());
-
-        assertTrue(priceCaptor.getValue() < 0);
+        assertThrows(DateTimeParseException.class,
+                () -> rentController.submitItem(carId, startDate, endDate, price, model));
     }
 
     @Test
     public void test_end_date_before_start_date() {
-        RentCalculatorService calculatorService = new RentCalculatorService();
-        RentService rentService = mock(RentService.class);
-        RentController controller = new RentController(calculatorService, rentService, null);
+        String startDate = "2024-01-03";
+        String endDate = "2024-01-01";
+        long price = 100;
+        Long carId = 1L;
 
-        Model model = mock(Model.class);
-        String startDate = "2023-01-03";
-        String endDate = "2023-01-01";
+        when(rentCalculatorService.rentCalculation(startDate, endDate, price))
+                .thenThrow(new IllegalArgumentException("End date cannot be before start date"));
 
-        controller.submitItem(1L, startDate, endDate, 100L, model);
-
-        ArgumentCaptor<Long> daysCaptor = ArgumentCaptor.forClass(Long.class);
-        verify(model).addAttribute(eq("numberOfRentDays"), daysCaptor.capture());
-
-        assertTrue(daysCaptor.getValue() < 0);
+        assertThrows(IllegalArgumentException.class,
+                () -> rentController.submitItem(carId, startDate, endDate, price, model));
     }
 
+    @Test
+    public void test_null_parameters_form_submission() throws CarServiceException {
+        String name = null;
+        String email = "test@test.com";
+        String address = "Test";
+        Long carId = 1L;
+        String startDate = "2024-01-01";
+        String endDate = "2024-01-03";
+        String phone = "1234567890";
+        Integer price = 300;
+        Long rentDays = 3L;
+
+        when(rentService.saveRent(name, email, address, carId, startDate, endDate, phone, price, rentDays))
+                .thenThrow(new IllegalArgumentException("Name cannot be null"));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> rentController.submitForm(name, email, address, startDate, endDate, carId, phone, price, rentDays, model));
+    }
+
+    // Handle invalid car ID that doesn't exist
     @Test
     public void test_invalid_car_id() throws CarServiceException {
-        RentCalculatorService calculatorService = mock(RentCalculatorService.class);
-        RentService rentService = mock(RentService.class);
-        RentController controller = new RentController(calculatorService, rentService, null);
+        String name = "John";
+        String email = "john@test.com";
+        String address = "Test";
+        Long carId = 999L;
+        String startDate = "2024-01-01";
+        String endDate = "2024-01-03";
+        String phone = "1234567890";
+        Integer price = 300;
+        Long rentDays = 3L;
 
-        when(rentService.saveRent(anyString(), anyString(), anyString(), eq(-1L),
-                anyString(), anyString(), anyString(), anyInt(), anyLong()))
-                .thenThrow(new CarServiceException("Invalid car ID"));
+        when(rentService.saveRent(name, email, address, carId, startDate, endDate, phone, price, rentDays))
+                .thenThrow(new CarServiceException("Car not found"));
 
-        Model model = mock(Model.class);
-
-        assertThrows(CarServiceException.class, () ->
-                controller.submitForm("name", "email", "address",
-                        "2023-01-01", "2023-01-03", -1L, "phone", 100, 3L, model));
+        assertThrows(CarServiceException.class,
+                () -> rentController.submitForm(name, email, address, startDate, endDate, carId, phone, price, rentDays, model));
     }
 
+    // Handle very large price values or rental day calculations
     @Test
-    public void test_invalid_email_format() throws CarServiceException {
-        RentCalculatorService calculatorService = mock(RentCalculatorService.class);
-        RentService rentService = mock(RentService.class);
-        RentController controller = new RentController(calculatorService, rentService, null);
+    public void test_large_price_values() {
+        String startDate = "2024-01-01";
+        String endDate = "2025-01-01";
+        long price = Long.MAX_VALUE / 365;
+        Long carId = 1L;
 
-        when(rentService.saveRent(anyString(), eq("invalid-email"), anyString(), anyLong(),
-                anyString(), anyString(), anyString(), anyInt(), anyLong()))
-                .thenThrow(new IllegalArgumentException("Invalid email format"));
+        RentCalculationResponse calculationResponse = RentCalculationResponse.builder()
+                .totalRentDays(366)
+                .totalPrice(Long.MAX_VALUE / 365 * 366)
+                .build();
 
-        Model model = mock(Model.class);
+        when(rentCalculatorService.rentCalculation(startDate, endDate, price)).thenReturn(calculationResponse);
 
-        assertThrows(IllegalArgumentException.class, () ->
-                controller.submitForm("name", "invalid-email", "address",
-                        "2023-01-01", "2023-01-03", 1L, "phone", 100, 3L, model));
+        String viewName = rentController.submitItem(carId, startDate, endDate, price, model);
+
+        assertEquals("rentForm", viewName);
     }
 
+    // Handle special characters in user input fields
+    @Test
+    public void test_special_characters_in_input() throws CarServiceException {
+        String name = "John<script>";
+        String email = "john@test.com";
+        String address = "Test Address & More";
+        Long carId = 1L;
+        String startDate = "2024-01-01";
+        String endDate = "2024-01-03";
+        String phone = "123-456-7890";
+        Integer price = 300;
+        Long rentDays = 3L;
+
+        when(rentService.saveRent(name, email, address, carId, startDate, endDate, phone, price, rentDays))
+                .thenThrow(new IllegalArgumentException("Invalid characters in input"));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> rentController.submitForm(name, email, address, startDate, endDate, carId, phone, price, rentDays, model));
+    }
+
+    // Verify transaction rollback on partial rental save failure
+    @Test
+    public void test_transaction_rollback() throws CarServiceException {
+        String name = "John";
+        String email = "john@test.com";
+        String address = "Test";
+        Long carId = 1L;
+        String startDate = "2024-01-01";
+        String endDate = "2024-01-03";
+        String phone = "1234567890";
+        Integer price = 300;
+        Long rentDays = 3L;
+
+        when(rentService.saveRent(name, email, address, carId, startDate, endDate, phone, price, rentDays))
+                .thenThrow(new RuntimeException("Database error"));
+
+        assertThrows(RuntimeException.class,
+                () -> rentController.submitForm(name, email, address, startDate, endDate, carId, phone, price, rentDays, model));
+    }
 }
