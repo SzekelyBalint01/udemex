@@ -31,15 +31,12 @@ public class CarSearchServiceExceptionTest {
         carSearchService = new CarSearchService(carRepository);
     }
 
-
     @Test
     public void testSearchForAvailableCar() throws CarSearchServiceException {
-        // Mock the repository to return a non-empty Optional
         when(carRepository.availableBetweenDate(Date.valueOf("2024-01-01"), Date.valueOf("2024-01-02")))
                 .thenReturn(Optional.of(Collections.singletonList(new Car())));
 
-        // Call the service method and assert the result
         List<CarDto> cars = carSearchService.availableCars("2024-01-01", "2024-01-02");
-        assertFalse(cars.isEmpty()); // Assert cars are found, hence no exception
+        assertFalse(cars.isEmpty());
     }
 }
