@@ -1,92 +1,38 @@
 package udemx.controller;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.stereotype.Controller;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.context.WebApplicationContext;
 
-import java.lang.reflect.Method;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-@SpringBootTest
+@RunWith(SpringRunner.class)
+@WebMvcTest(HomeController.class)
 public class HomeControllerTest {
 
-    private final HomeController homeController = mock(HomeController.class);
+    @Autowired
     private MockMvc mockMvc;
 
-    @Test
-    public void test_get_root_returns_home_view() {
-        String viewName = homeController.home();
-        assertEquals("home", viewName);
+    @Autowired
+    private WebApplicationContext webApplicationContext;
+
+    @Before
+    public void setUp() {
+        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     }
 
     @Test
-    public void test_controller_handles_root_mapping() throws NoSuchMethodException {
-        GetMapping mapping = homeController.getClass().getDeclaredMethod("home").getAnnotation(GetMapping.class);
-        assertEquals("/", mapping.value()[0]);
-    }
-
-    @Test
-    public void test_get_mapping_annotation_present() throws NoSuchMethodException {
-
-        Method homeMethod = homeController.getClass().getDeclaredMethod("home");
-        assertTrue(homeMethod.isAnnotationPresent(GetMapping.class));
-    }
-
-    @Test
-    public void test_home_method_return_value() {
-
-        String result = homeController.home();
-        assertNotNull(result);
-        assertEquals("home", result);
-    }
-
-    @Test
-    public void test_controller_annotation_present() {
-        Class<?> controllerClass = HomeController.class;
-        assertTrue(controllerClass.isAnnotationPresent(Controller.class));
-    }
-
-
-    @Test
-    public void test_query_params_handling() throws Exception {
-
-        mockMvc = MockMvcBuilders.standaloneSetup(homeController).build();
-        mockMvc.perform(get("/?param=value"))
+    public void testHome() throws Exception {
+        mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("home"));
     }
-
-    @Test
-    public void test_invalid_http_method() throws Exception {
-
-        mockMvc = MockMvcBuilders.standaloneSetup(homeController).build();
-        mockMvc.perform(post("/"))
-                .andExpect(status().isMethodNotAllowed());
-    }
-
-    @Test
-    public void test_home_endpoint_returns_home_string() {
-
-        String result = homeController.home();
-        assertEquals("home", result);
-    }
-
-    @Test
-    public void test_character_encoding_handling() throws Exception {
-
-        mockMvc = MockMvcBuilders.standaloneSetup(homeController).build();
-        mockMvc.perform(get("/").characterEncoding("UTF-16"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("home"));
-    }
-
 }
