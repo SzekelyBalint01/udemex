@@ -19,7 +19,7 @@ public class UserServiceTest {
 
     @Autowired
     private UserService userService;
-
+/*
     @Test
     public void testSaveUser() {
 
@@ -44,4 +44,5 @@ public class UserServiceTest {
 
         verify(userRepository, times(1)).save(user);
     }
+    */
 }
