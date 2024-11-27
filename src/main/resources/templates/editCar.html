@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Car</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div th:if="${#lists.isEmpty(cars)}" class="alert alert-warning" th:text="${error}"></div>
+<div class="container mt-5">
+
+    <h1>Edit Car</h1>
+
+    <form th:action="@{/cars/update}" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="id" th:value="${car.id}" />
+
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" class="form-control" th:value="${car.name}" />
+        </div>
+
+        <div class="form-group">
+            <label for="photo">Photo</label>
+            <input type="file" id="photo" name="photo" class="form-control" />
+            <img th:src="@{${car.photo}}" alt="Car Photo" class="img-thumbnail mt-2" style="max-width: 200px; max-height: 200px;" />
+        </div>
+
+        <div class="form-group">
+            <label for="active">Active</label>
+            <select id="active" name="active" class="form-control">
+                <option th:value="true" th:selected="${car.active}">Yes</option>
+                <option th:value="false" th:selected="${!car.active}">No</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="price">Price</label>
+            <input type="number" id="price" name="price" class="form-control" th:value="${car.price}" />
+        </div>
+        <button type="submit" class="btn btn-success">Save</button>
+    </form>
+</div>
+</body>
+</html>
