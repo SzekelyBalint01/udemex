@@ -4,11 +4,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import udemx.exception.CarSearchServiceException;
+import udemx.exception.CarServiceException;
+import udemx.model.Car;
 import udemx.pojo.CarDto;
 import udemx.service.CarSearchService;
+import udemx.service.CarService;
 
 import java.util.List;
 
@@ -17,10 +19,13 @@ public class CarController {
 
     private final CarSearchService carSearchService;
 
+    private final CarService carService;
+
     private final Logger logger = LoggerFactory.getLogger(CarController.class);
 
-    public CarController(CarSearchService carSearchService) {
+    public CarController(CarSearchService carSearchService, CarService carService) {
         this.carSearchService = carSearchService;
+        this.carService = carService;
     }
 
     @PostMapping("/search")
@@ -48,5 +53,25 @@ public class CarController {
         logger.info("Dates recived successfully {} - {}", startDate, endDate);
 
         return "availableCarsList";
+    }
+
+
+    @GetMapping("/edit/{id}")
+    public String editCar(@PathVariable Long id, Model model) {
+        Car car;
+        try {
+          car = carService.findById(id);
+        } catch (CarServiceException e) {
+            model.addAttribute("error", e.getMessage());
+            return "editCar";
+        }
+        model.addAttribute("car", car);
+        return "editCar";
+    }
+
+    @PostMapping("/update")
+    public String updateCar(@ModelAttribute Car car) {
+        carService.save(car);
+        return "redirect:/admin";
     }
 }
