@@ -8,6 +8,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class RentCalculationResponse {
-    long totalPrice;
+    int totalPrice;
     long totalRentDays;
+
+    public static RentCalculationResponse create(int totalRentDays, long totalPrice) {
+        return new RentCalculationResponse(totalRentDays, totalPrice);
+    }
 }

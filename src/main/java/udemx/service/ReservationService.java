@@ -27,7 +27,7 @@ public class ReservationService {
     }
 
     public Reservation findById(long id) throws ReservationServiceException {
-        return reservationRepository.findById(id).orElseThrow(()->new ReservationServiceException("No Reservation found with this id: {}",id));
+        return reservationRepository.findById(id).orElseThrow(()->new ReservationServiceException("No Reservation found with this id: " + id));
     }
 
     public List<ReservationDto> getAllReservations() {

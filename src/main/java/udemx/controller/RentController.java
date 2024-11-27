@@ -21,7 +21,7 @@ public class RentController {
     }
 
     @PostMapping("/submitCar")
-    public String submitItem(@RequestParam Long carId, @RequestParam String startDate, @RequestParam String endDate, @RequestParam long price , Model model) {
+    public String submitItem(@RequestParam Long carId, @RequestParam String startDate, @RequestParam String endDate, @RequestParam int price , Model model) {
 
         RentCalculationResponse rentCalculationResponse = rentCalculatorService.rentCalculation(startDate, endDate, price);
 

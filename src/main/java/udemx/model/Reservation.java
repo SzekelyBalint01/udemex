@@ -29,7 +29,7 @@ public class Reservation implements Serializable {
 
 
     @Column(name = "price")
-    private Integer price;
+    private int price;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "car_id", nullable = false)

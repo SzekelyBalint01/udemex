@@ -37,7 +37,7 @@ public class CarService extends Mappers {
     }
 
     public Car findById(long id) throws CarServiceException {
-        return carRepository.findById(id).orElseThrow(()->new CarServiceException("Car not find with this id {}", id));
+        return carRepository.findById(id).orElseThrow(()->new CarServiceException("Car not find with this id: " + id));
     }
 
     public List<CarResponseDto> getAllCars() {
