@@ -6,7 +6,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import udemx.pojo.CarDto;
+import udemx.pojo.CarResponseDto;
 import udemx.service.CarSearchService;
+import udemx.service.CarService;
 
 import java.util.List;
 
@@ -24,13 +26,14 @@ public class CarControllerTest {
     @BeforeEach
     void setup() {
         carSearchService = mock(CarSearchService.class);
-        CarController carController = new CarController(carSearchService);
+        CarService carService = mock(CarService.class);
+        CarController carController = new CarController(carSearchService, carService);
         mockMvc = MockMvcBuilders.standaloneSetup(carController).build();
     }
 
     @Test
     public void testHandleDates_withAvailableCars() throws Exception {
-        List<CarDto> cars = List.of(new CarDto(1L, "Test Car", null, true, 100L));
+        List<CarResponseDto> cars = List.of(new CarResponseDto(1L, "Test Car", null, true, 100L));
 
         when(carSearchService.availableCars("2023-01-01", "2023-01-02")).thenReturn(cars);
 

@@ -7,6 +7,7 @@ import org.mockito.MockitoAnnotations;
 import udemx.exception.CarSearchServiceException;
 import udemx.model.Car;
 import udemx.pojo.CarDto;
+import udemx.pojo.CarResponseDto;
 import udemx.repository.CarRepository;
 import udemx.service.CarSearchService;
 
@@ -36,7 +37,7 @@ public class CarSearchServiceExceptionTest {
         when(carRepository.availableBetweenDate(Date.valueOf("2024-01-01"), Date.valueOf("2024-01-02")))
                 .thenReturn(Optional.of(Collections.singletonList(new Car())));
 
-        List<CarDto> cars = carSearchService.availableCars("2024-01-01", "2024-01-02");
+        List<CarResponseDto> cars = carSearchService.availableCars("2024-01-01", "2024-01-02");
         assertFalse(cars.isEmpty());
     }
 }

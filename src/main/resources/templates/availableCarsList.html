@@ -19,7 +19,9 @@
         <tbody>
         <tr th:each="car : ${cars}">
             <td th:text="${car.name}"></td>
-            <td th:text="${car.photo}"></td>
+            <td>
+                <img th:if="${car.photoBase64}" th:src="'data:image/jpeg;base64,' + ${car.photoBase64}" alt="Car Photo"/>
+            </td>
             <td th:text="${car.price}"></td>
             <td>
                 <form th:action="@{/submitCar}" method="post">

@@ -23,11 +23,11 @@
         </thead>
         <tbody>
         <tr th:each="reservation : ${reservations}">
-            <td th:text="${reservation.id}">1</td>
-            <td th:text="${reservation.startDate}">2024-01-01</td>
-            <td th:text="${reservation.endDate}">2024-01-10</td>
-            <td th:text="${reservation.car.id}">1</td>
-            <td th:text="${reservation.user.id}">1</td>
+            <td th:text="${reservation.id}"></td>
+            <td th:text="${reservation.startDate}"></td>
+            <td th:text="${reservation.endDate}"></td>
+            <td th:text="${reservation.car.id}"></td>
+            <td th:text="${reservation.user.id}"></td>
         </tr>
         </tbody>
     </table>
@@ -54,11 +54,14 @@
             <td th:text="${car.active ? 'Yes' : 'No'}"></td>
             <td th:text="${car.price}"></td>
             <td>
-                <a th:href="@{/cars/edit/{id}(id=${car.id})}" class="btn btn-primary btn-sm">Edit</a>
+                <a th:href="@{/car/edit(id=${car.id})}" class="btn btn-primary btn-sm">Edit</a>
             </td>
         </tr>
         </tbody>
     </table>
+    <div class="mt-3">
+        <a th:href="@{/car/new}" class="btn btn-success">Add New Car</a>
+    </div>
 </div>
 </body>
 </html>
