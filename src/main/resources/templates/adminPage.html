@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Page</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="text-center">Admin Page</h1>
+
+    <!-- Reservations Table -->
+    <h2 class="mt-4">Reservations</h2>
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
+        <tr>
+            <th>ID</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Car ID</th>
+            <th>User ID</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="reservation : ${reservations}">
+            <td th:text="${reservation.id}">1</td>
+            <td th:text="${reservation.startDate}">2024-01-01</td>
+            <td th:text="${reservation.endDate}">2024-01-10</td>
+            <td th:text="${reservation.car.id}">1</td>
+            <td th:text="${reservation.user.id}">1</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Cars Table -->
+    <h2 class="mt-4">Cars</h2>
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Photo</th>
+            <th>Active</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="car : ${cars}">
+            <td th:text="${car.id}">1</td>
+            <td th:text="${car.name}">Toyota</td>
+            <td>
+                <img th:src="@{${car.photo}}" alt="Car Photo" class="img-thumbnail" style="max-width: 100px; max-height: 100px;" />
+            </td>
+            <td th:text="${car.active ? 'Yes' : 'No'}">Yes</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

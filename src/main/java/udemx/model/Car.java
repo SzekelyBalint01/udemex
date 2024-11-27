@@ -32,7 +32,6 @@ public class Car implements Serializable {
     @Column(name = "active", nullable = false)
     private Boolean active = true;
 
-    // Egy autóhoz több foglalás tartozhat
     @OneToMany(mappedBy = "car", fetch = FetchType.LAZY)
     private List<Reservation> reservations;
 }
