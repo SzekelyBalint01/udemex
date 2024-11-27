@@ -5,13 +5,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CarDto implements Serializable {
+public class CarDto{
     private Long id;
     private String name;
     private byte[] photo;

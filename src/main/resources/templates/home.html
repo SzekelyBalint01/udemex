@@ -41,12 +41,26 @@
 
 <script type="text/javascript">
     $(function () {
-        $('.date').datepicker({
+        $('#endDate').datepicker({
             format: "yyyy-mm-dd",
             autoclose: true,
-            todayHighlight: true
+            todayHighlight: true,
+            startDate: new Date(),
+            disable: true
+        }).prop('disabled', true);
+
+        $('#startDate').datepicker({
+            format: "yyyy-mm-dd",
+            autoclose: true,
+            todayHighlight: true,
+            startDate: new Date()
+        }).on('changeDate', function(selected) {
+            var minDate = new Date(selected.date.valueOf());
+            $('#endDate').datepicker('setStartDate', minDate);
+            $('#endDate').prop('disabled', false);
+            $('#endDate').datepicker('update');
         });
     });
 </script>
-</body>
+
 </html>
