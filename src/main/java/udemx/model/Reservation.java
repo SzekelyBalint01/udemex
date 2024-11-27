@@ -29,14 +29,12 @@ public class Reservation implements Serializable {
 
 
     @Column(name = "price")
-    private Integer price;
+    private int price;
 
-    // Egy foglalás egy autóhoz tartozik
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "car_id", nullable = false)
     private Car car;
 
-    // Egy foglalás egy felhasználóhoz tartozik
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

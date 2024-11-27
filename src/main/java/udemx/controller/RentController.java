@@ -6,10 +6,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import udemx.exception.CarServiceException;
 import udemx.pojo.RentCalculationResponse;
-import udemx.pojo.RentResponse;
 import udemx.service.RentCalculatorService;
 import udemx.service.RentService;
-import udemx.service.ReservationService;
 
 @Controller
 public class RentController {
@@ -17,13 +15,13 @@ public class RentController {
     private final RentCalculatorService rentCalculatorService;
     private final RentService rentService;
 
-    public RentController(RentCalculatorService rentCalculatorService, RentService rentService, ReservationService reservationService) {
+    public RentController(RentCalculatorService rentCalculatorService, RentService rentService) {
         this.rentCalculatorService = rentCalculatorService;
         this.rentService = rentService;
     }
 
     @PostMapping("/submitCar")
-    public String submitItem(@RequestParam Long carId, @RequestParam String startDate, @RequestParam String endDate, @RequestParam long price , Model model) {
+    public String submitItem(@RequestParam Long carId, @RequestParam String startDate, @RequestParam String endDate, @RequestParam int price , Model model) {
 
         RentCalculationResponse rentCalculationResponse = rentCalculatorService.rentCalculation(startDate, endDate, price);
 

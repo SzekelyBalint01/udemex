@@ -5,15 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CarDto{
+public class CarResponseDto {
     private Long id;
     private String name;
-    private byte[] photo;
+    private String photo;
     private Boolean active;
     private long price;
 }
