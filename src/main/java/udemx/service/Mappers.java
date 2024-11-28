@@ -10,6 +10,16 @@ import java.util.stream.Collectors;
 
 public class Mappers {
 
+    public CarResponseDto carResponseMapper(Car car) {
+        return CarResponseDto.builder()
+                .id(car.getId())
+                .active(car.getActive())
+                .name(car.getName())
+                .price(car.getPrice())
+                .photo(Base64.getEncoder().encodeToString(car.getPhoto()))
+                .build();
+    }
+
     public List<CarResponseDto> carResponseMapper (List<Car> cars){
         return cars.stream()
                 .map(car -> CarResponseDto.builder()
@@ -19,18 +29,6 @@ public class Mappers {
                         .name(car.getName())
                         .active(car.getActive())
                         .build())
-                .collect(Collectors.toList());
-    }
-
-    public List<CarDto> carListMapper(List<Car> cars){
-        return cars.stream()
-                .map(car -> new CarDto(
-                        car.getId(),
-                        car.getName(),
-                        car.getPhoto(),
-                        car.getActive(),
-                        car.getPrice()
-                ))
                 .collect(Collectors.toList());
     }
 
