@@ -9,10 +9,8 @@ import udemx.pojo.CarDto;
 import udemx.pojo.CarResponseDto;
 import udemx.repository.CarRepository;
 
-import java.awt.*;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class CarService extends Mappers {
@@ -34,6 +32,17 @@ public class CarService extends Mappers {
                 .build();
 
         return carMapper(carRepository.save(carforSave));
+    }
+
+
+    public CarDto saveCar(Long carId, int price, MultipartFile photo, Boolean active, String name) throws IOException {
+        return carMapper(carRepository.save(Car.builder()
+                        .id(carId)
+                        .name(name)
+                        .active(active)
+                        .photo(photo.getBytes())
+                        .price(price)
+                .build()));
     }
 
     public Car findById(long id) throws CarServiceException {

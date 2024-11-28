@@ -1,42 +1,90 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="">
 <head>
     <meta charset="UTF-8">
-    <title>Upload Car</title>
+    <title>Edit Car</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
 
 <div class="container mt-5">
-    <h1>Upload Car</h1>
+    <h1>Edit Car</h1>
 
-    <form th:action="@{/car/upload}" method="post" enctype="multipart/form-data">
+    <form th:action="@{/car/update}" method="post" enctype="multipart/form-data">
+
+        <input type="hidden" name="carId" th:value="${car.id}" />
+
         <div class="form-group">
             <label for="name">Name</label>
-            <input type="text" id="name" name="name" class="form-control" placeholder="Enter car name" required />
+            <input type="text" id="name" name="name" class="form-control"
+                   th:value="${car.name}" required />
         </div>
 
         <div class="form-group">
-            <label for="photo">Photo</label>
-            <input type="file" id="photo" name="photo" class="form-control" accept="image/*" />
+            <label for="photo">Current Photo</label>
+            <div class="d-flex align-items-center">
+                <div>
+                    <img class="thumbnail" th:if="${car.photo}" th:src="'data:image/jpeg;base64,' + ${car.photo}" th:data-name="${car.name}" alt="Car Photo" style="max-width: 150px; max-height: 150px; cursor: pointer;"/>
+                </div>
+                <div class="ml-3">
+                    <input type="file" id="photo" name="photo" class="form-control" accept="image/*" />
+                </div>
+            </div>
         </div>
 
         <div class="form-group">
             <label for="active">Active</label>
             <select id="active" name="active" class="form-control" required>
-                <option value="true">Yes</option>
-                <option value="false">No</option>
+                <option th:selected="${car.active == true}" value="true">Yes</option>
+                <option th:selected="${car.active == false}" value="false">No</option>
             </select>
         </div>
 
         <div class="form-group">
             <label for="price">Price</label>
-            <input type="number" id="price" name="price" class="form-control" placeholder="Enter car price" required />
+            <input type="number" id="price" name="price" class="form-control"
+                   th:value="${car.price}" required />
         </div>
 
         <button type="submit" class="btn btn-success">Save</button>
     </form>
 </div>
 
+<!-- Modal for enlarging the photo -->
+<div class="modal fade" id="carPhotoModal" tabindex="-1" role="dialog" aria-labelledby="carPhotoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="width: 1030px; max-width: 1030px;">
+        <div class="modal-content" style="width: 100%; height: auto;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="carPhotoModalLabel">Car Photo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="overflow-y: auto; max-height: 1000px;">
+                <img id="modalImage" src="" alt="Car Photo" style="width: 1000px; height: auto; object-fit: contain; display: block; margin: 0 auto;">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.min.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener('DOMContentLoaded', function () {
+        const images = document.querySelectorAll('.thumbnail');
+        images.forEach(image => {
+            image.addEventListener('click', function () {
+                const modalImage = document.getElementById('modalImage');
+                const modalTitle = document.getElementById('carPhotoModalLabel');
+                const carName = this.getAttribute('data-name');
+                modalImage.src = this.src;
+                modalTitle.textContent = carName;
+                $('#carPhotoModal').modal('show');
+            });
+        });
+    });
+    /*]]>*/
+</script>
 </body>
 </html>

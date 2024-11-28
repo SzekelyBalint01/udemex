@@ -9,8 +9,8 @@ spring:
 
     datasource:
       url: jdbc:postgresql://localhost:5432/udemx
-      username: udemx
-      password: udemx
+      username: postgres
+      password: manager
       driver-class-name: org.postgresql.Driver
       hikari:
         connection-timeout: 20000
