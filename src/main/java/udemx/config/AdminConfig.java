@@ -21,11 +21,6 @@ public class AdminConfig {
     @Bean
     public UserDetailsService userDetailsService() {
 
-        Logger logger = Logger.getLogger(AdminConfig.class.getName());
-
-
-        logger.info("Admin username: {}" + adminUsername);
-        logger.info("Admin password: {}"+ adminPassword);
         UserDetails admin = User.builder()
                 .username(adminUsername)
                 .password("{noop}" + adminPassword) // "{noop}" no encrypt
