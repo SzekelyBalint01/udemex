@@ -9,7 +9,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.multipart.MultipartFile;
-import udemx.model.Car;
 import udemx.pojo.CarDto;
 import udemx.pojo.CarResponseDto;
 import udemx.service.CarSearchService;
