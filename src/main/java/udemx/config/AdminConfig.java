@@ -7,6 +7,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
+import java.util.logging.Logger;
+
 @Configuration
 public class AdminConfig {
 
@@ -18,6 +20,10 @@ public class AdminConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
+
+        Logger logger = Logger.getLogger(AdminConfig.class.getName());
+        logger.info("Admin username: {}" + adminUsername);
+        logger.info("Admin password: {}"+ adminPassword);
         UserDetails admin = User.builder()
                 .username(adminUsername)
                 .password("{noop}" + adminPassword) // "{noop}" no encrypt
