@@ -50,7 +50,6 @@
     </form>
 </div>
 
-<!-- Modal for enlarging the photo -->
 <div class="modal fade" id="carPhotoModal" tabindex="-1" role="dialog" aria-labelledby="carPhotoModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document" style="width: 1030px; max-width: 1030px;">
         <div class="modal-content" style="width: 100%; height: auto;">
@@ -65,6 +64,18 @@
             </div>
         </div>
     </div>
+
+    <form th:action="@{/car/delete}" method="post" class="mt-3">
+        <input type="hidden" name="carId" th:value="${car.id}" />
+        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this car?');">
+            Delete
+        </button>
+    </form>
+
+    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this car?');">
+        Delete
+    </button>
+
 </div>
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

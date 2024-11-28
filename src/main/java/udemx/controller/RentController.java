@@ -9,6 +9,8 @@ import udemx.pojo.RentCalculationResponse;
 import udemx.service.RentCalculatorService;
 import udemx.service.RentService;
 
+import java.util.Arrays;
+
 @Controller
 public class RentController {
 
@@ -37,9 +39,17 @@ public class RentController {
     @PostMapping("/finishRent")
     public String submitForm(@RequestParam String name, @RequestParam String email, @RequestParam String address,
                                    @RequestParam String startDate, @RequestParam String endDate, @RequestParam Long carId,
-                                   @RequestParam String phone, @RequestParam Integer price, Long rentDays, Model model) throws CarServiceException {
+                                   @RequestParam String phone, @RequestParam Integer price, Long rentDays, Model model){
 
-       model.addAttribute("rentResponse", rentService.saveRent(name, email, address, carId, startDate,endDate, phone, price, rentDays));
+        try {
+            model.addAttribute("rentResponse", rentService.saveRent(name, email, address, carId, startDate,endDate, phone, price, rentDays));
+        } catch (CarServiceException e) {
+
+            model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("errorStackTrace", Arrays.toString(e.getStackTrace()));
+
+            return "error";
+        }
 
         return "success";
     }

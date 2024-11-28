@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import udemx.exception.CarSearchServiceException;
 import udemx.exception.CarServiceException;
 import udemx.pojo.CarDto;
@@ -17,6 +18,7 @@ import udemx.service.CarService;
 import udemx.service.Mappers;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -46,10 +48,12 @@ public class CarController extends Mappers {
             model.addAttribute("cars", cars);
 
         } catch (Exception e) {
-            String errorMessage = (e instanceof CarSearchServiceException) ? e.getMessage() : "An unexpected error occurred";
-            model.addAttribute("error", errorMessage);
+
+            model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("errorStackTrace", Arrays.toString(e.getStackTrace()));
             logger.error("Error during car availability search", e);
-            return "availableCarsList";
+
+            return "error";
         }
 
         model.addAttribute("startDate", startDate);
@@ -74,6 +78,17 @@ public class CarController extends Mappers {
             return "redirect:/admin";
         }
         model.addAttribute("message", "Car updated successfully");
+        return "redirect:/admin";
+    }
+
+    @PostMapping("/car/delete")
+    public String deleteCar(@RequestParam("carId") Long carId, RedirectAttributes redirectAttributes) {
+        try {
+            carService.deleteById(carId);
+            redirectAttributes.addFlashAttribute("message", "Car deleted successfully.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Failed to delete the car.");
+        }
         return "redirect:/admin";
     }
 

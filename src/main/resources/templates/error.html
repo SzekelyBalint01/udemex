@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Error Page</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .error-container {
+            margin-top: 50px;
+            text-align: center;
+        }
+        .error-details {
+            margin-top: 20px;
+            text-align: left;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+<div class="container error-container">
+    <h1 class="text-danger">An Error Occurred</h1>
+    <p class="lead">We are sorry, but something went wrong.</p>
+
+    <div class="error-details">
+        <h4 class="text-danger">Error Message:</h4>
+        <p th:text="${errorMessage}"></p>
+
+        <h4 class="text-danger">Stack Trace:</h4>
+        <pre th:each="stackTrace : ${errorStackTrace}" th:text="${stackTrace}"></pre>
+    </div>
+
+    <div class="mt-4">
+        <a th:href="@{/}" class="btn btn-primary">Go Back to Home</a>
+    </div>
+</div>
+</body>
+</html>

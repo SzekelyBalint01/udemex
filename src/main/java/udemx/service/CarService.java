@@ -34,7 +34,7 @@ public class CarService extends Mappers {
         return carMapper(carRepository.save(carforSave));
     }
 
-
+    @Transactional
     public CarDto saveCar(Long carId, int price, MultipartFile photo, Boolean active, String name) throws IOException {
         return carMapper(carRepository.save(Car.builder()
                         .id(carId)
@@ -51,5 +51,10 @@ public class CarService extends Mappers {
 
     public List<CarResponseDto> getAllCars() {
         return carResponseMapper(carRepository.findAll());
+    }
+
+    @Transactional
+    public void deleteById(Long carId) {
+        carRepository.deleteById(carId);
     }
 }
